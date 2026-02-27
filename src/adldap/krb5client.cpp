@@ -228,7 +228,7 @@ void Krb5Client::Krb5ClientImpl::load_caches() {
 
 void Krb5Client::Krb5ClientImpl::load_cache_data(krb5_ccache ccache, bool is_system) {
     krb5_error_code res;
-    krb5_principal principal;
+    krb5_principal principal = nullptr;
     krb5_creds creds;
     Krb5TGTData tgt_data;
 
