@@ -1,5 +1,5 @@
 # Сборка rpm-пакета ADMC для Ред ОС
--
+---
 1. Устанавливаем необходимые зависимости
 ```bash
 sudo dnf install curl mock mock-core-configs rpmdevtools rpm-build systemd-container unzip tar
