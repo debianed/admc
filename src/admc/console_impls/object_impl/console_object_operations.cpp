@@ -100,13 +100,10 @@ void ConsoleObjectTreeOperations::console_object_move_and_rename(const QList<Con
                     get_sites_container_tree_root(target_console) :
                     get_domain_object_tree_root(target_console);
         if (object_root.isValid()) {
-            const QModelIndex parent_object = target_console->search_item(object_root, ObjectRole_DN, new_parent_dn, {ItemType_Object});
+            console_object_delete_dn_list(target_console, old_dn_list, object_root, ItemType_Object, ObjectRole_DN);
 
-            if (parent_object.isValid()) {
-                add_objects_to_console(target_console, object_map.values(), parent_object);
-
-                console_object_delete_dn_list(target_console, old_dn_list, object_root, ItemType_Object, ObjectRole_DN);
-            }
+            const QModelIndex new_parent_obj_index = target_console->search_item(object_root, ObjectRole_DN, new_parent_dn, {ItemType_Object});
+            add_objects_to_console(target_console, object_map.values(), new_parent_obj_index);
         }
 
         // For query tree, we don't move items or recreate
