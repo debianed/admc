@@ -373,6 +373,7 @@ QSet<StandardAction> ObjectImpl::get_standard_actions(const QModelIndex &index, 
             CLASS_USER,
             CLASS_GROUP,
             CLASS_OU,
+            CLASS_SITE
         };
         const QString object_class = index.data(ObjectRole_ObjectClasses).toStringList().last();
         const bool can_rename_out = (single_selection && renamable_class_list.contains(object_class));
