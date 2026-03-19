@@ -231,7 +231,10 @@ enum SystemFlagsBit {
 #define ATTRIBUTE_LINK_COST "cost"
 #define ATTRIBUTE_LINK_REPLICATION_INTERVAL "replInterval"
 #define ATTRIBUTE_LINK_SCHEDULE "schedule"
-
+#define ATTRIBUTE_DNS_RECORD_DC "dc"
+#define ATTRIBUTE_REPLICA_LOCATIONS "msDS-NC-Replica-Locations"
+#define ATTRIBUTE_NC_NAME "nCName"
+#define ATTRIBUTE_INTER_SITE_TOPOLOGY_GENERATOR "interSiteTopologyGenerator"
 
 #define CLASS_GROUP "group"
 #define CLASS_USER "user"
@@ -270,6 +273,8 @@ enum SystemFlagsBit {
 #define CLASS_SITE_LINK_BRIDGE "siteLinkBridge"
 #define CLASS_NTDS_SITE_SETTINGS "nTDSSiteSettings"
 #define CLASS_MS_IMAGING_PSPS "msImaging-PSPs"
+#define CLASS_DNS_NODE "dnsNode"
+#define CLASS_CROSS_REF "crossRef"
 // NOTE: for schema object
 #define CLASS_dMD "dMD"
 #define CLASS_CONTROL_ACCESS_RIGHT "controlAccessRight"
