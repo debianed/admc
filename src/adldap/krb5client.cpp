@@ -113,9 +113,12 @@ Krb5Client::Krb5ClientImpl::~Krb5ClientImpl() {
 }
 
 void Krb5Client::Krb5ClientImpl::kinit(const QString &principal, const QString &password) {
-    if (principal_cache_map.contains(principal)) {
-        krb5_cc_destroy(context, principal_cache_map[principal]);
+    krb5_ccache old_ccache = principal_cache_map.value(principal, nullptr);
+    if (old_ccache) {
+        krb5_cc_destroy(context, old_ccache);
     }
+    principal_cache_map.remove(principal);
+    principal_tgt_map.remove(principal);
 
     krb5_creds creds;
     krb5_error_code res;
@@ -501,7 +504,11 @@ void Krb5Client::logout(bool delete_creds) {
     bool creds_not_system = impl->curr_principal != impl->sys_principal;
 
     if (delete_creds && creds_not_system) {
-        krb5_cc_destroy(impl->context, impl->principal_cache_map[impl->curr_principal]);
+        krb5_ccache ccache = impl->principal_cache_map.value(impl->curr_principal, nullptr);
+        if (ccache) {
+            krb5_cc_destroy(impl->context, ccache);
+        }
+
         impl->principal_cache_map.remove(impl->curr_principal);
         impl->principal_tgt_map.remove(impl->curr_principal);
     }
