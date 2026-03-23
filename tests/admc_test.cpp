@@ -298,6 +298,7 @@ void ADMCTest::test_edit_apply_unmodified(AttributeEdit *edit, const QString &dn
 void ADMCTest::select_base_widget_add(SelectBaseWidget *widget, const QString &dn) {
     QPushButton *browse_button = widget->ui->browse_button;
     browse_button->click();
+    QApplication::processEvents();
 
     auto select_container_dialog = widget->findChild<SelectContainerDialog *>();
     QVERIFY(select_container_dialog);
