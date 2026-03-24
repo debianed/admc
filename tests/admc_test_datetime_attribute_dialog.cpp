@@ -29,7 +29,7 @@ void ADMCTestDatetimeAttributeDialog::initTestCase_data() {
     QTest::addColumn<QList<QByteArray>>("value_list");
     QTest::addColumn<QDateTime>("display_value");
 
-    QTest::newRow("non-empty") << QList<QByteArray>({"20210706131457.0Z"}) << QDateTime(QDate(2021, 7, 6), QTime(13, 14, 57));
+    QTest::newRow("non-empty") << QList<QByteArray>({"20210706131457.0Z"}) << QDateTime(QDate(2021, 7, 6), QTime(13, 14, 57), Qt::UTC);
 }
 
 void ADMCTestDatetimeAttributeDialog::init() {
@@ -46,6 +46,8 @@ void ADMCTestDatetimeAttributeDialog::init() {
 
 void ADMCTestDatetimeAttributeDialog::display_value() {
     QFETCH_GLOBAL(QDateTime, display_value);
+
+    QApplication::processEvents();
 
     const QDateTime actual_display_value = datetime_edit->dateTime();
     QCOMPARE(actual_display_value, display_value);
