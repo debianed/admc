@@ -113,9 +113,12 @@ Krb5Client::Krb5ClientImpl::~Krb5ClientImpl() {
 }
 
 void Krb5Client::Krb5ClientImpl::kinit(const QString &principal, const QString &password) {
-    if (principal_cache_map.contains(principal)) {
-        krb5_cc_destroy(context, principal_cache_map[principal]);
+    krb5_ccache old_ccache = principal_cache_map.value(principal, nullptr);
+    if (old_ccache) {
+        krb5_cc_destroy(context, old_ccache);
     }
+    principal_cache_map.remove(principal);
+    principal_tgt_map.remove(principal);
 
     krb5_creds creds;
     krb5_error_code res;
@@ -126,7 +129,7 @@ void Krb5Client::Krb5ClientImpl::kinit(const QString &principal, const QString &
     krb5_principal princ;
     res = krb5_parse_name(context, principal_name, &princ);
     if (res) {
-        throw_error(error, res);
+        cleanup_and_throw(error, res, nullptr, nullptr, princ, nullptr);
     }
 
     memset(&creds, 0, sizeof(creds));
@@ -172,6 +175,8 @@ void Krb5Client::Krb5ClientImpl::kinit(const QString &principal, const QString &
     }
 
     load_cache_data(ccache, cache_is_system(ccache));
+
+    cleanup(nullptr, &creds, princ, nullptr);
 
     curr_principal = principal;
 }
@@ -222,14 +227,15 @@ void Krb5Client::Krb5ClientImpl::load_caches() {
     }
 
     if (curr_principal.isEmpty()) {
-        curr_principal == sys_principal;
+        curr_principal = sys_principal;
     }
 }
 
 void Krb5Client::Krb5ClientImpl::load_cache_data(krb5_ccache ccache, bool is_system) {
     krb5_error_code res;
-    krb5_principal principal;
-    krb5_creds creds;
+    krb5_principal principal = nullptr;
+    krb5_creds creds{};
+    krb5_creds match_creds{};
     Krb5TGTData tgt_data;
 
     res = krb5_cc_get_principal(context, ccache, &principal);
@@ -244,11 +250,12 @@ void Krb5Client::Krb5ClientImpl::load_cache_data(krb5_ccache ccache, bool is_sys
         cleanup(ccache, nullptr, principal, princ);
         return;
     }
-    tgt_data.principal = princ;
+    tgt_data.principal = QString::fromUtf8(princ);
     krb5_free_unparsed_name(context, princ);
+    princ = nullptr;
 
-    memset(&creds, 0, sizeof(creds));
-    res = krb5_build_principal(context, &creds.server,
+    memset(&match_creds, 0, sizeof(match_creds));
+    res = krb5_build_principal(context, &match_creds.server,
                                    krb5_princ_realm(context, principal)->length,
                                    krb5_princ_realm(context, principal)->data,
                                    "krbtgt",
@@ -256,13 +263,17 @@ void Krb5Client::Krb5ClientImpl::load_cache_data(krb5_ccache ccache, bool is_sys
                                    NULL);
 
     if (res) {
-        cleanup(ccache, &creds, principal, nullptr);
+        krb5_free_cred_contents(context, &match_creds);
+        cleanup(ccache, nullptr, principal, nullptr);
         return;
     }
 
-    res = krb5_cc_retrieve_cred(context, ccache, 0, &creds, &creds);
+    memset(&creds, 0, sizeof(creds));
+    res = krb5_cc_retrieve_cred(context, ccache, 0, &match_creds, &creds);
+    krb5_free_cred_contents(context, &match_creds);
     if (res) {
-        cleanup(ccache, &creds, principal, nullptr);
+        krb5_free_principal(context, creds.server);
+        cleanup(ccache, nullptr, principal, nullptr);
         return;
     }
 
@@ -270,7 +281,9 @@ void Krb5Client::Krb5ClientImpl::load_cache_data(krb5_ccache ccache, bool is_sys
         sys_principal = tgt_data.principal;
     }
     tgt_data.state = tgt_state_from_creds(creds);
-    tgt_data.realm = principal->realm.data;
+    tgt_data.realm = QString::fromUtf8(
+            principal->realm.data,
+            principal->realm.length);
     tgt_data.starts.setSecsSinceEpoch(creds.times.starttime);
     tgt_data.renew_until.setSecsSinceEpoch(creds.times.renew_till);
     tgt_data.expires.setSecsSinceEpoch(creds.times.endtime);
@@ -280,7 +293,8 @@ void Krb5Client::Krb5ClientImpl::load_cache_data(krb5_ccache ccache, bool is_sys
 
     // ccache is not closed here because it can be used later and will be
     // closed in destructor
-    cleanup(nullptr, &creds, principal, nullptr);
+    krb5_free_principal(context, principal);
+    krb5_free_cred_contents(context, &creds);
 }
 
 Krb5TgtState Krb5Client::Krb5ClientImpl::tgt_state_from_creds(const krb5_creds &creds) {
@@ -490,7 +504,11 @@ void Krb5Client::logout(bool delete_creds) {
     bool creds_not_system = impl->curr_principal != impl->sys_principal;
 
     if (delete_creds && creds_not_system) {
-        krb5_cc_destroy(impl->context, impl->principal_cache_map[impl->curr_principal]);
+        krb5_ccache ccache = impl->principal_cache_map.value(impl->curr_principal, nullptr);
+        if (ccache) {
+            krb5_cc_destroy(impl->context, ccache);
+        }
+
         impl->principal_cache_map.remove(impl->curr_principal);
         impl->principal_tgt_map.remove(impl->curr_principal);
     }

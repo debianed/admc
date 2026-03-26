@@ -22,7 +22,7 @@
 #include "ui_select_object_dialog.h"
 
 #include "adldap.h"
-#include "console_impls/object_impl.h"
+#include "console_impls/object_impl/object_impl.h"
 #include "globals.h"
 #include "select_object_advanced_dialog.h"
 #include "select_object_match_dialog.h"
@@ -167,7 +167,7 @@ void SelectObjectDialog::on_add_button() {
         return out;
     }();
 
-    const QHash<QString, AdObject> search_results = ad.search(base, SearchScope_All, filter, console_object_search_attributes());
+    const QHash<QString, AdObject> search_results = ad.search(base, SearchScope_All, filter, ConsoleObjectTreeOperations::console_object_search_attributes());
 
     if (search_results.size() == 1) {
         const QString dn = search_results.keys()[0];
@@ -260,7 +260,7 @@ void SelectObjectDialog::add_objects_to_list(const QList<QString> &dn_list, AdIn
 void add_select_object_to_model(QStandardItemModel *model, const AdObject &object) {
     const QList<QStandardItem *> row = make_item_row(SelectColumn_COUNT);
 
-    console_object_item_data_load(row[0], object);
+    ConsoleObjectTreeOperations::console_object_item_data_load(row[0], object);
 
     const QString dn = object.get_dn();
     const QString name = dn_get_name(dn);

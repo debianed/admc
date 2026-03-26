@@ -20,7 +20,7 @@
 #include "domain_info_impl.h"
 #include "console_widget/console_widget.h"
 #include "results_widgets/domain_info_results_widget/domain_info_results_widget.h"
-#include "console_impls/object_impl.h"
+#include "console_impls/object_impl/object_impl.h"
 #include "console_impls/policy_root_impl.h"
 #include "console_impls/query_folder_impl.h"
 #include "ad_interface.h"
@@ -65,10 +65,11 @@ void DomainInfoImpl::refresh(const QList<QModelIndex> &index_list) {
 
     console->set_current_scope(console->domain_info_index());
     if (ad.is_connected()) {
-        console_object_tree_init(console, ad);
+        ConsoleObjectTreeOperations::console_object_tree_init(console, ad);
         console_policy_tree_init(console);
         console_query_tree_init(console);
-        console_tree_add_password_settings(console, ad);
+        ConsoleObjectTreeOperations::console_tree_add_password_settings(console, ad);
+        ConsoleObjectTreeOperations::console_tree_add_sites_container(console, ad);
         g_gplink_manager->update();
     }
     console->expand_item(console->domain_info_index());

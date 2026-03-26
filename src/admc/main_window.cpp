@@ -29,7 +29,7 @@
 #include "connection_options_dialog.h"
 #include "console_impls/all_policies_folder_impl.h"
 #include "console_impls/item_type.h"
-#include "console_impls/object_impl.h"
+#include "console_impls/object_impl/object_impl.h"
 #include "console_impls/policy_impl.h"
 #include "console_impls/policy_ou_impl.h"
 #include "console_impls/policy_root_impl.h"
@@ -50,6 +50,7 @@
 #include <QDesktopServices>
 #include <QLabel>
 #include <QModelIndex>
+#include <QActionGroup>
 
 MainWindow::MainWindow(AdInterface &ad, Krb5Client &krb5_client_arg, QWidget *parent)
 : QMainWindow(parent), krb5_client(&krb5_client_arg) {
@@ -80,11 +81,10 @@ MainWindow::MainWindow(AdInterface &ad, Krb5Client &krb5_client_arg, QWidget *pa
         init_on_connect(ad);
     }
     else {
-        if (!krb5_client->current_principal().isEmpty()) {
-            krb5_client->logout(false);
-        }
         g_status->log_messages(ad.messages());
-        login_label->setText(tr("Authentication required"));
+        if (krb5_client->current_principal().isEmpty()) {
+            login_label->setText(tr("Authentication required"));
+        }
     }
 }
 
@@ -497,10 +497,11 @@ void MainWindow::init_on_connect(AdInterface &ad) {
 
     domain_info_impl->load_domain_info_item(ad);
     ui->console->set_current_scope(ui->console->domain_info_index());
-    console_object_tree_init(ui->console, ad);
+    ConsoleObjectTreeOperations::console_object_tree_init(ui->console, ad);
     console_policy_tree_init(ui->console);
     console_query_tree_init(ui->console);
-    console_tree_add_password_settings(ui->console, ad);
+    ConsoleObjectTreeOperations::console_tree_add_password_settings(ui->console, ad);
+    ConsoleObjectTreeOperations::console_tree_add_sites_container(ui->console, ad);
     g_gplink_manager->update();
     ui->console->expand_item(ui->console->domain_info_index());
 
@@ -511,7 +512,7 @@ void MainWindow::init_on_connect(AdInterface &ad) {
     ui->console->setup_menubar_action_menu(ui->menu_action);
 
     // Set current scope to object head to load it
-    const QModelIndex object_tree_root = get_object_tree_root(ui->console);
+    const QModelIndex object_tree_root = ConsoleObjectTreeOperations::get_domain_object_tree_root(ui->console);
     if (object_tree_root.isValid()) {
         ui->console->set_current_scope(object_tree_root);
     }

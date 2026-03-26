@@ -27,7 +27,6 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QLineEdit>
-#include <QTextCodec>
 
 #include <cng-dpapi/cng-dpapi_client.h>
 

@@ -101,6 +101,7 @@ void ADMCTestSelectClassesWidget::test_foo() {
 
     // Check that reopening dialog retains state
     select_button->click();
+    QApplication::processEvents();
 
     ClassFilterDialog *class_filter_dialog_2 = select_classes_widget->findChild<ClassFilterDialog *>();
     QVERIFY(class_filter_dialog_2);

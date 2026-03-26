@@ -1,4 +1,4 @@
-find_package(Qt5 REQUIRED
+find_package(Qt6 REQUIRED
     COMPONENTS
         Core
         Widgets
@@ -34,8 +34,8 @@ include_directories(
 find_library(RESOLV_LIBRARY libresolv.so)
 
 link_libraries(
-    Qt5::Core
-    Qt5::Widgets
+    Qt6::Core
+    Qt6::Widgets
     adldap
 )
 
@@ -68,6 +68,7 @@ set(ADMC_SOURCES
     tab_widget.cpp
     create_object_helper.cpp
     rename_object_helper.cpp
+    main_window_connection_error.cpp
 
     results_widgets/policy_ou_results_widget/policy_ou_results_widget.cpp
     results_widgets/policy_ou_results_widget/inherited_policies_widget.cpp
@@ -78,6 +79,9 @@ set(ADMC_SOURCES
     results_widgets/domain_info_results_widget/fsmo_table_widget.cpp
     results_widgets/pso_results_widget/pso_edit_widget.cpp
     results_widgets/pso_results_widget/pso_results_widget.cpp
+    results_widgets/results_widget_base.cpp
+    results_widgets/subnet_results_widget/subnet_results_widget.cpp
+    results_widgets/subnet_results_widget/subnet_edit_widget.cpp
 
     create_dialogs/create_user_dialog.cpp
     create_dialogs/create_group_dialog.cpp
@@ -89,6 +93,9 @@ set(ADMC_SOURCES
     create_dialogs/create_query_item_dialog.cpp
     create_dialogs/create_query_folder_dialog.cpp
     create_dialogs/create_pso_dialog.cpp
+    create_dialogs/create_subnet_dialog.cpp
+    create_dialogs/create_sites_link_dialog.cpp
+    create_dialogs/create_site_dialog.cpp
 
     rename_dialogs/rename_other_dialog.cpp
     rename_dialogs/rename_policy_dialog.cpp
@@ -160,6 +167,11 @@ set(ADMC_SOURCES
     tabs/laps_tab.cpp
     tabs/error_tab.cpp
     tabs/group_policy_tab.cpp
+    tabs/sites_link_tab/sites_link_common_widget.cpp
+    tabs/sites_link_tab/sites_link_part_widget.cpp
+    tabs/sites_link_tab/sites_link_widget.cpp
+    tabs/sites_link_tab/sites_link_general_tab.cpp
+    tabs/general_site_tab.cpp
 
     multi_tabs/general_user_multi_tab.cpp
     multi_tabs/general_other_multi_tab.cpp
@@ -191,8 +203,8 @@ set(ADMC_SOURCES
     attribute_edits/country_combo.cpp
     attribute_edits/manager_widget.cpp
     attribute_edits/delegation_edit.cpp
-    attribute_edits/logon_hours_edit.cpp
-    attribute_edits/logon_hours_dialog.cpp
+    attribute_edits/schedule_hours_edit.cpp
+    attribute_edits/schedule_hours_dialog.cpp
     attribute_edits/logon_computers_edit.cpp
     attribute_edits/logon_computers_dialog.cpp
     attribute_edits/protect_deletion_edit.cpp
@@ -200,6 +212,9 @@ set(ADMC_SOURCES
     attribute_edits/general_name_edit.cpp
     attribute_edits/dn_edit.cpp
     attribute_edits/pso_applied_edit.cpp
+    attribute_edits/sites_link_edit.cpp
+    attribute_edits/site_links_table_edit.cpp
+    attribute_edits/subnets_list_edit.cpp
 
     attribute_edits/upn_multi_edit.cpp
     attribute_edits/account_option_multi_edit.cpp
@@ -224,7 +239,11 @@ set(ADMC_SOURCES
     managers/icon_manager.cpp
     managers/gplink_manager.cpp
 
-    console_impls/object_impl.cpp
+    console_impls/object_impl/object_impl.cpp
+    console_impls/object_impl/drag_n_drop.cpp
+    console_impls/object_impl/console_object_operations.cpp
+    console_impls/object_impl/site_dn_attrs_updater.cpp
+    console_impls/object_impl/server_dn_attrs_updater.cpp
     console_impls/policy_impl.cpp
     console_impls/query_item_impl.cpp
     console_impls/query_folder_impl.cpp
@@ -279,12 +298,12 @@ set(TS_FILES
 # changes.
 add_custom_target(admc_ts
     DEPENDS ${TS_FILES}
-    COMMAND ${Qt5_LUPDATE_EXECUTABLE} -recursive ${CMAKE_CURRENT_SOURCE_DIR} -ts ${TS_FILES} -noobsolete
+    COMMAND ${Qt6_LUPDATE_EXECUTABLE} -recursive ${CMAKE_CURRENT_SOURCE_DIR} -ts ${TS_FILES} -noobsolete
 )
 
 # Generate translation binaries (.qm) from sources (.ts)
 set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION ${CMAKE_CURRENT_SOURCE_DIR})
-qt5_add_translation(QM_FILES ${TS_FILES})
+qt6_add_translation(QM_FILES ${TS_FILES})
 
 install(TARGETS admc DESTINATION ${CMAKE_INSTALL_BINDIR}
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

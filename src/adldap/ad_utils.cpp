@@ -65,12 +65,12 @@ QString datetime_qdatetime_to_string(const QString &attribute, const QDateTime &
             break;
         }
         case AttributeType_UTCTime: {
-            return datetime.toString(UTC_TIME_FORMAT_STRING);
+            return datetime.toUTC().toString(UTC_TIME_FORMAT_STRING);
 
             break;
         }
         case AttributeType_GeneralizedTime: {
-            return datetime.toString(GENERALIZED_TIME_FORMAT_STRING);
+            return datetime.toUTC().toString(GENERALIZED_TIME_FORMAT_STRING);
 
             break;
         }

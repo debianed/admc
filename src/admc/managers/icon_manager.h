@@ -2,6 +2,7 @@
 #define ICON_MANAGER_H
 
 #include <memory>
+#include <QStringList>
 
 // Can be supplemented if needed
 enum ItemIcon {
@@ -28,6 +29,15 @@ enum ItemIcon {
     ItemIcon_Inheritance_Block_Indicator,
     ItemIcon_Password_Settings_Object,
     ItemIcon_PSO_Container, // Password settings container
+    ItemIcon_Sites_Container,
+    ItemIcon_Subnet_Container,
+    ItemIcon_Subnet,
+    ItemIcon_Site_Link,
+    ItemIcon_Site_Link_Bridge,
+    ItemIcon_Site_NTDS_Settings,
+    ItemIcon_InterSite_Transport_Container,
+    ItemIcon_InterSite_Transport,
+    ItemIcon_Server,
 
     ItemIcon_COUNT
 };
@@ -39,7 +49,6 @@ class QMap;
 class QLocale;
 class QIcon;
 class QString;
-class QStringList;
 
 class IconManager final {
 public:
